@@ -1,5 +1,21 @@
 ### Cached - An off-heap slab cache for Java
 
+Using standard java serialization
+
+    Cache<Integer, AnObject> cache = CacheBuilder.<Integer, AnObject>newBuilder().build();
+    cache.put(1, new AnObject());
+    AnObject obj = cache.get(1);
+
+
+Using a Kryo serializer
+
+    KryoCacheValueSerializer<AnObject> serializer = new KryoCacheValueSerializer<>(AnObject.class);
+    Cache<Integer, AnObject> cache = CacheBuilder.<Integer, AnObject>newBuilder()
+               .serializer(serializer).build();
+    cache.put(1, new AnObject());
+    AnObject obj = cache.get(1);
+
+
 Some benchmarks
 
      0% Scenario{vm=java, trial=0, benchmark=KryoGet, size=1} 3208.17 ns; σ=126.11 ns @ 10 trials
