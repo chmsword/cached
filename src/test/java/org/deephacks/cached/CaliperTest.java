@@ -31,16 +31,28 @@ public class CaliperTest extends SimpleBenchmark {
         }
     }
 
-    public void timeKryo(int reps) {
+    public void timeKryoGet(int reps) {
+        kryoCache.put(0, objects.get(0));
         for (int i = 0; i < reps; i++) {
-            kryoCache.put(0, objects.get(0));
             kryoCache.get(0);
         }
     }
 
-    public void timeSerialization(int reps) {
+    public void timeKryoPut(int reps) {
+        for (int i = 0; i < reps; i++) {
+            kryoCache.put(0, objects.get(0));
+        }
+    }
+
+    public void timeSerializationPut(int reps) {
         for (int i = 0; i < reps; i++) {
             defaultCache.put(0, objects.get(0));
+        }
+    }
+
+    public void timeSerializationGet(int reps) {
+        defaultCache.put(0, objects.get(0));
+        for (int i = 0; i < reps; i++) {
             defaultCache.get(0);
         }
     }

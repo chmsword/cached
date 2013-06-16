@@ -2,6 +2,7 @@ package org.deephacks.cached;
 
 import org.deephacks.cached.buffer.ByteBuf;
 import org.deephacks.cached.buffer.PooledByteBufAllocator;
+import org.deephacks.cached.buffer.Unpooled;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -13,13 +14,14 @@ public class DefaultCacheValueSerializer extends CacheValueSerializer<Object> {
     private PooledByteBufAllocator allocator = PooledByteBufAllocator.DEFAULT;
     @Override
     public ByteBuf write(Object value) {
-        ByteBuf buf = null;
+        ByteBuf buf;
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream out = new ObjectOutputStream(baos);
             out.writeObject(value);
             byte[] bytes = baos.toByteArray();
-            buf = allocator.directBuffer(bytes.length);
+            buf = Unpooled.directBuffer();
+            // buf = allocator.directBuffer(bytes.length);
             buf.writeBytes(bytes);
         } catch (IOException e) {
             throw new RuntimeException(e);
