@@ -2,6 +2,7 @@ package org.deephacks.cached;
 
 import org.junit.Test;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,23 +15,40 @@ import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.*;
 
 public class CacheTest {
-    private KryoCacheValueSerializer<AnObject> serializer = new KryoCacheValueSerializer<>(AnObject.class);
+    private static KryoCacheValueSerializer<AnObject> serializer = new KryoCacheValueSerializer<>(AnObject.class);
 
-    private Cache<Integer, AnObject> cache = CacheBuilder.<Integer, AnObject>newBuilder()
+    public static Cache<Integer, AnObject> defaultCache = CacheBuilder.<Integer, AnObject>newBuilder()
+            .build();
+
+    public static Cache<Integer, AnObject> kryoCache = CacheBuilder.<Integer, AnObject>newBuilder()
             .serializer(serializer).build();
 
     @Test
-    public void test_put_get() {
+    public void test_kryo_cache() {
+        long time = System.nanoTime();
+        test_cache(kryoCache);
+        System.out.println("Kryo time " + (System.nanoTime() - time));
+    }
+
+    @Test
+    public void test_default_cache() {
+        long time = System.nanoTime();
+        test_cache(defaultCache);
+        System.out.println("Serializable time " + (System.nanoTime() - time));
+    }
+
+    public void test_cache(Cache<Integer, AnObject> cache) {
         int count = 0;
-        while(count < 100) {
+        int numObjects = 1000;
+        while(count < numObjects) {
             AnObject object = createObject();
             cache.put(++count, object);
             AnObject theObject = cache.get(count);
             assertEquals(object, theObject);
         }
-        assertEquals(cache.size(), 100);
-        assertEquals(cache.values().size(), 100);
-        assertEquals(cache.keySet().size(), 100);
+        assertEquals(cache.size(), numObjects);
+        assertEquals(cache.values().size(), numObjects);
+        assertEquals(cache.keySet().size(), numObjects);
         cache.clear();
         assertTrue(cache.isEmpty());
         Map<Integer, AnObject> objs = new HashMap<>();
@@ -40,8 +58,7 @@ public class CacheTest {
         cache.putAll(objs);
         assertEquals(cache.keySet().size(), 3);
     }
-
-    public AnObject createObject() {
+    public static AnObject createObject() {
         AnObject2 o2 = new AnObject2(UUID.randomUUID().toString());
         ArrayList<Integer> ints = new ArrayList<>();
         ints.add(6);
@@ -53,7 +70,7 @@ public class CacheTest {
         return new AnObject('c', new Random().nextInt(), ints, o2, bytes);
     }
 
-    public static class AnObject {
+    public static class AnObject implements Serializable {
         private char hello;
         private int hello2;
         private List<Integer> list;
@@ -104,7 +121,7 @@ public class CacheTest {
             return result;
         }
     }
-    public static class AnObject2 {
+    public static class AnObject2 implements Serializable {
         private String value;
 
         public AnObject2(String value){

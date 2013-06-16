@@ -120,6 +120,7 @@ class DefaultCache<K, V> implements Cache<K, V> {
     }
 
     private V read(ByteBuf buf) {
+        buf.resetReaderIndex();
         return buf == null ? null : (V) serializer.read(buf);
     }
 }

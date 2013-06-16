@@ -5,6 +5,7 @@ import com.esotericsoftware.kryo.io.Output;
 import org.deephacks.cached.buffer.ByteBuf;
 import org.deephacks.cached.buffer.ByteBufOutputStream;
 import org.deephacks.cached.buffer.PooledByteBufAllocator;
+import org.deephacks.cached.buffer.Unpooled;
 
 public class KryoCacheValueSerializer<T> extends CacheValueSerializer<T> {
     private static final PooledByteBufAllocator allocator = PooledByteBufAllocator.DEFAULT;
@@ -18,8 +19,9 @@ public class KryoCacheValueSerializer<T> extends CacheValueSerializer<T> {
 
     @Override
     public ByteBuf write(T value) {
-        ByteBuf buf = allocator.directBuffer();
-        ByteBufOutputStream byteBufOutput = new ByteBufOutputStream(buf);
+        //ByteBuf buf = allocator.directBuffer();
+        ByteBuf buf = Unpooled.directBuffer();
+                ByteBufOutputStream byteBufOutput = new ByteBufOutputStream(buf);
         Output output = new Output(byteBufOutput);
         kryo.writeObject(output, value);
         output.flush();
